@@ -1,7 +1,14 @@
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 from tkinter import ttk,filedialog
+import tkinter.font as font
 import time
+import random
+import string
+
+
+
+
 
 class OrdenacaoApp:
     def __init__(self, root):
@@ -9,60 +16,101 @@ class OrdenacaoApp:
         
         self.root = root
         self.root.title("App de Ordenação")
-        self.root.geometry("400x650")  # Ajustei a altura novamente para acomodar as mudanças
+        self.root.geometry("400x320")  # Ajustei a altura novamente para acomodar as mudanças
         
         self.label = tk.Label(root, text="Insira números ou palavras")
-        self.label.pack(pady=10)
-        
+        self.label.grid(row=0, column=0, pady=10, padx=10, sticky="w")
+
         self.entry = tk.Entry(root)
-        self.entry.pack(pady=10)
-        self.entry.bind("<Return>", self.add_item)  
+        self.entry.grid(row=1, column=0, pady=10, padx=10, sticky="w")
+        self.entry.bind("<Return>", self.add_item)    
         
         self.addButton = tk.Button(root, text="Adicionar", command=self.add_item)
-        self.addButton.pack(pady=10)
-        
+        self.addButton.grid(row=2, column=0, pady=10, padx=10, sticky="w")        
         # Combobox para seleção de método de ordenação
         self.comboBox = ttk.Combobox(root, values=["QuickSort", "MergeSort"], state="readonly")
         self.comboBox.set("QuickSort")  # Método padrão
-        self.comboBox.pack(pady=10)
+        self.comboBox.grid(row=3, column=0, pady=10, padx=10, sticky="w")
         
         # Frame para botões
         self.buttonFrame = tk.Frame(root)
-        self.buttonFrame.pack(pady=10)
+        self.buttonFrame.grid(row=4, column=0, pady=10, padx=10, sticky="w")
         
         self.sortButton = tk.Button(self.buttonFrame, text="Ordenar", command=self.sort_items)
-        self.sortButton.pack(side=tk.LEFT, padx=5)
-        
+        self.sortButton.grid(row=0, column=0, padx=5)        
         self.clearButton = tk.Button(self.buttonFrame, text="Limpar", command=self.clear_vector)
-        self.clearButton.pack(side=tk.LEFT, padx=5)
+        self.clearButton.grid(row=0, column=1, padx=4)
+
+
         
         self.saveButton = tk.Button(self.buttonFrame, text="Salvar", command=self.save_items)
-        self.saveButton.pack(side=tk.LEFT, padx=5)
+        self.saveButton.grid(row=0, column=2, padx=5)
         
         self.exportButton = tk.Button(self.buttonFrame, text="importar", command=self.import_items)
-        self.exportButton.pack(side=tk.LEFT, padx=5)
-
+        self.exportButton.grid(row=1, column=0, padx=5)
         self.searchLabel = tk.Label(root, text="Pesquisar")
-        self.searchLabel.pack(pady=10)
+        self.searchLabel.grid(row=0, column=1, padx=5)
         
         self.searchEntry = tk.Entry(root)
-        self.searchEntry.pack(pady=10)
         self.searchEntry.bind("<Return>", self.filter_items)
+        self.searchEntry.grid(row=1, column=1, padx=3)
         
         self.listbox = tk.Listbox(root)
-        self.listbox.pack(pady=20, padx=20, expand=True, fill="both")
+        self.listbox.grid(row=2, column=1, rowspan=5, pady=20, padx=4)
+        
         
         # Label para mostrar o tempo de ordenação
         self.timeLabel = tk.Label(root, text="", fg="red")
-        self.timeLabel.pack(pady=10)
+        self.timeLabel.grid(row=8, column=0, pady=10, padx=10, sticky="w")
 
+        self.generateRandomButton = tk.Button(self.buttonFrame, text="Gerar Aleatório", command=self.generate_random_window)
+        self.generateRandomButton.grid(row=1, column=1, padx=5)
+        
+        # Redimensionar colunas e linhas conforme necessário
+        root.grid_columnconfigure(1, weight=1)
+        root.grid_rowconfigure(7, weight=1)
+        
+        
+    
+
+    def generate_random_items(self):
+        try:
+            count = int(self.random_entry.get())
+            
+            choices = ["word", "number"]
+            choice = random.choice(choices)
+            
+            if choice == "word":
+                self.data.extend(self.generate_random_words(count))
+            else:
+                self.data.extend(self.generate_random_numbers(count))
+            
+            self.random_window.destroy()
+            self.refresh_listbox()
+        except ValueError:
+            messagebox.showerror("Erro", "Por favor, insira um número válido.")
+
+    def generate_random_words(self, count):
+        return [''.join(random.choice(string.ascii_lowercase) for _ in range(5)) for _ in range(count)]
+
+    def generate_random_numbers(self, count):
+        return [random.randint(1, 1000) for _ in range(count)]
+
+    def custom_compare(self, x, y):
+        if isinstance(x, str) and isinstance(y, str):
+            return x < y
+        elif isinstance(x, (int, float)) and isinstance(y, (int, float)):
+            return x < y
+        else:
+            return isinstance(x, str)
+    
     def quick_sort(self, arr):
         if len(arr) <= 1:
             return arr
         pivot = arr[len(arr) // 2]
-        left = [x for x in arr if x < pivot]
+        left = [x for x in arr if self.custom_compare(x, pivot)]
         middle = [x for x in arr if x == pivot]
-        right = [x for x in arr if x > pivot]
+        right = [x for x in arr if self.custom_compare(pivot, x)]
         return self.quick_sort(left) + middle + self.quick_sort(right)
 
     def merge_sort(self, arr):
@@ -78,7 +126,7 @@ class OrdenacaoApp:
         left_index, right_index = 0, 0
 
         while left_index < len(left) and right_index < len(right):
-            if left[left_index] < right[right_index]:
+            if self.custom_compare(left[left_index], right[right_index]):
                 result.append(left[left_index])
                 left_index += 1
             else:
@@ -102,6 +150,7 @@ class OrdenacaoApp:
         self.timeLabel.config(text=f"Tempo: {elapsed_time:.6f} segundos")
         
         self.refresh_listbox()
+
     def add_item(self, event=None):  
         item = self.entry.get()
         if not item:
@@ -115,9 +164,18 @@ class OrdenacaoApp:
         self.entry.delete(0, tk.END)  
         self.refresh_listbox()
         
-    def sort_items(self):
-        self.data.sort(key=lambda x: (isinstance(x, str), x))
-        self.refresh_listbox()
+    def generate_random_window(self):
+        self.random_window = tk.Toplevel(self.root)
+        self.random_window.title("Gerar Itens Aleatórios")
+        
+        self.label = tk.Label(self.random_window, text="Insira a quantidade de itens:")
+        self.label.pack(pady=10)
+        
+        self.random_entry = tk.Entry(self.random_window)
+        self.random_entry.pack(pady=10)
+        
+        self.generateButton = tk.Button(self.random_window, text="Gerar", command=self.generate_random_items)
+        self.generateButton.pack(pady=10)
     
     def filter_items(self, event=None):
         query = self.searchEntry.get().lower()
@@ -156,4 +214,5 @@ class OrdenacaoApp:
 if __name__ == "__main__":
     root = tk.Tk()
     app = OrdenacaoApp(root)
+
     root.mainloop()
