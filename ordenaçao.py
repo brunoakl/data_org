@@ -1,7 +1,5 @@
 import tkinter as tk
-from tkinter import simpledialog, messagebox, ttk, filedialog
-from tkinter import 
-import tkinter.font as font
+from tkinter import messagebox, ttk, filedialog
 import time, random, string
 
 class OrdenacaoApp:
@@ -34,8 +32,7 @@ class OrdenacaoApp:
         self.sortButton.grid(row=0, column=0, padx=5)        
         self.clearButton = tk.Button(self.buttonFrame, text="Limpar", command=self.clear_vector)
         self.clearButton.grid(row=0, column=1, padx=4)
-
-
+        
         
         self.saveButton = tk.Button(self.buttonFrame, text="Salvar", command=self.save_items)
         self.saveButton.grid(row=0, column=2, padx=5)
@@ -64,9 +61,6 @@ class OrdenacaoApp:
         root.grid_columnconfigure(1, weight=1)
         root.grid_rowconfigure(7, weight=1)
         
-        
-    
-
     def generate_random_items(self):
         try:
             count = int(self.random_entry.get())
