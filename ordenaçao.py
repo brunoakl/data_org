@@ -1,14 +1,8 @@
 import tkinter as tk
-from tkinter import simpledialog, messagebox
-from tkinter import ttk,filedialog
+from tkinter import simpledialog, messagebox, ttk, filedialog
+from tkinter import 
 import tkinter.font as font
-import time
-import random
-import string
-
-
-
-
+import time, random, string
 
 class OrdenacaoApp:
     def __init__(self, root):
