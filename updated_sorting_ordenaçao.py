@@ -5,13 +5,13 @@ import time, random, string
 class OrdenacaoApp:
     def __init__(self, root):
         self.data = []
+        self.hashtable = {}
+        self.root = root
+        self.root.geometry("400x320")  # Ajustei a altura novamente para acomodar as mudanças
         
         self.root = root
         self.root.title("App de Ordenação")
         self.root.geometry("400x320")  # Ajustei a altura novamente para acomodar as mudanças
-        
-        self.label = tk.Label(root, text="Insira números ou palavras")
-        self.label.grid(row=0, column=0, pady=10, padx=10, sticky="w")
 
         self.entry = tk.Entry(root)
         self.entry.grid(row=1, column=0, pady=10, padx=10, sticky="w")
@@ -93,17 +93,7 @@ class OrdenacaoApp:
             return isinstance(x, str)
     
     
-    def quick_sort(self, data):
-        if len(data) <= 1:
-            return data
-        else:
-            pivot_key = list(data.keys())[len(data) // 2]
-            pivot_value = data[pivot_key]
-            less = {k: v for k, v in data.items() if v < pivot_value}
-            equal = {k: v for k, v in data.items() if v == pivot_value}
-            greater = {k: v for k, v in data.items() if v > pivot_value}
-            return self.quick_sort(less) + list(equal.items()) + self.quick_sort(greater)
-
+    def quick_sort(self, arr):
         if len(arr) <= 1:
             return arr
         pivot = arr[len(arr) // 2]
@@ -112,35 +102,11 @@ class OrdenacaoApp:
         right = [x for x in arr if self.custom_compare(pivot, x)]
         return self.quick_sort(left) + middle + self.quick_sort(right)
 
-    
-    def merge_sort(self, data):
-        if len(data) <= 1:
-            return data
-        else:
-            middle = len(data) // 2
-            left = dict(list(data.items())[:middle])
-            right = dict(list(data.items())[middle:])
-            
-            left_sorted = self.merge_sort(left)
-            right_sorted = self.merge_sort(right)
-            
-            return self.merge(left_sorted, right_sorted)
-    
-    def merge(self, left, right):
-        result = {}
-        while left and right:
-            if list(left.values())[0] <= list(right.values())[0]:
-                key, value = left.popitem(last=False)
-                result[key] = value
-            else:
-                key, value = right.popitem(last=False)
-                result[key] = value
-        for key, value in left.items():
-            result[key] = value
-        for key, value in right.items():
-            result[key] = value
-        return result
 
+        
+
+    
+    def merge_sort(self, arr):
         if len(arr) <= 1:
             return arr
         mid = len(arr) // 2
@@ -183,6 +149,12 @@ class OrdenacaoApp:
         if not item:
             return
         
+        # Convertendo para float ou mantendo como string
+        item = float(item) if item.isnumeric() or item.replace(".", "", 1).isdigit() else item
+        
+        # Adiciona na hashtable
+        self.hashtable[item] = self.hashtable.get(item, 0) + 1
+        
         if item.isnumeric() or item.replace(".", "", 1).isdigit():  
             self.data.append(float(item))
         else:
@@ -206,7 +178,7 @@ class OrdenacaoApp:
     
     def filter_items(self, event=None):
         query = self.searchEntry.get().lower()
-        filtered_data = [item for item in self.data if query in str(item).lower()]
+        filtered_data = [item for item in self.data if query in str(item).lower() and item in self.hashtable]
         self.refresh_listbox(filtered_data)
     
     def clear_vector(self):
